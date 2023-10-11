@@ -46,7 +46,7 @@ class Bepaid extends Payment
                 ],
                 'order' => [
                     'currency' => $currency['code'],
-                    'amount' => $payment['amount'] * 100,
+                    'amount' => (int) $payment['amount'] * 100,
                     'description' => $this->lang['bepaid.order_description'] . ' ' . $order['id'],
                     'tracking_id' => $order['id'] . '-' . $payment['hash']
                 ],
@@ -82,6 +82,7 @@ class Bepaid extends Payment
 
         if (isset($response['transaction']) && isset($response['transaction']['tracking_id'])
             && isset($response['transaction']['type']) && $response['transaction']['type'] == 'payment'
+            && !empty($response['transaction']['status']) && $response['transaction']['status'] === "successful"
         ) {
             $paymentHash = $this->getRequestPaymentHash();
             $processor = $this->modx->commerce->loadProcessor();
@@ -99,6 +100,8 @@ class Bepaid extends Payment
                 return false;
             }
         }
+
+        return false;
     }
 
     protected function request($data)
