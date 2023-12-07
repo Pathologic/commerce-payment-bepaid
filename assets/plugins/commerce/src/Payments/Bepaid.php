@@ -27,6 +27,9 @@ class Bepaid extends Payment
         $currency  = ci()->currency->getCurrency($order['currency']);
         $payment   = $this->createPayment($order['id'], $order['amount']);
 
+        $payment['amount'] = round($payment['amount'] * 100, 2);
+        $payment['amount'] = (int) $payment['amount'];
+
         $customer = [
             'email' => $order['email'],
             'phone' => $order['phone'],
@@ -43,10 +46,11 @@ class Bepaid extends Payment
                     'fail_url' => MODX_SITE_URL . 'commerce/bepaid/payment-failed',
                     'cancel_url' => MODX_SITE_URL . 'commerce/bepaid/payment-failed',
                     'notification_url' => MODX_SITE_URL . 'commerce/bepaid/payment-process?paymentHash=' . $payment['hash'],
+                    'language' => "ru",
                 ],
                 'order' => [
                     'currency' => $currency['code'],
-                    'amount' => (int) $payment['amount'] * 100,
+                    'amount' => $payment['amount'],
                     'description' => $this->lang['bepaid.order_description'] . ' ' . $order['id'],
                     'tracking_id' => $order['id'] . '-' . $payment['hash']
                 ],
